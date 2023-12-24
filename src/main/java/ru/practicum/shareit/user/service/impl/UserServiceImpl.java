@@ -75,9 +75,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void validationFindUserById(Long userId) {
-        if (userStorage.get(userId) == null) {
+    @Override
+    public User validationFindUserById(Long userId) {
+        User user = userStorage.get(userId);
+        if (user == null) {
             throw new NotFoundException(String.format("Клиент с ид %d не найден", userId));
         }
+        return user;
     }
 }
