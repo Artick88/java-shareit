@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.exeption.DuplicationException;
 import ru.practicum.shareit.exception.exeption.NotFoundException;
 import ru.practicum.shareit.user.dto.UserCreateDto;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserUpdateDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -13,6 +14,7 @@ import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,38 +24,30 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public List<User> getAll() {
-        return userStorage.getAll();
+    public List<UserDto> getAll() {
+        return userStorage.getAll().stream()
+                .map(userMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public User get(Long id) {
-        return userStorage.get(id);
+    public UserDto get(Long id) {
+        return userMapper.toUserDto(userStorage.get(id));
     }
 
     @Override
-    public User create(UserCreateDto data) {
+    public UserDto create(UserCreateDto data) {
         User user = userMapper.toUser(data);
         validation(user);
-        return userStorage.create(user);
+        return userMapper.toUserDto(userStorage.create(user));
     }
 
     @Override
-    public User update(Long id, UserUpdateDto data) {
+    public UserDto update(Long id, UserUpdateDto data) {
         User user = userMapper.toUser(data);
         user.setId(id);
-
         validation(user);
-
-        User userSaved = userStorage.get(id);
-        if (user.getEmail() == null) {
-            user.setEmail(userSaved.getEmail());
-        }
-        if (user.getName() == null) {
-            user.setName(userSaved.getName());
-        }
-
-        return userStorage.update(user);
+        return userMapper.toUserDto(userStorage.update(user));
     }
 
     @Override

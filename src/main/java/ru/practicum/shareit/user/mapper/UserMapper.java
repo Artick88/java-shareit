@@ -23,7 +23,7 @@ public class UserMapper {
                 .build();
     }
 
-    public UserDto toUserResponseDto(User user) {
+    public UserDto toUserDto(User user) {
         return UserDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())

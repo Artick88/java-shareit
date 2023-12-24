@@ -37,15 +37,22 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User update(User user) {
         User userMap = userIdMap.get(user.getId());
-        userIdMap.put(user.getId(), user);
+        User userSaved = User.builder()
+                .id(user.getId())
+                .name(user.getName() == null ? userMap.getName() : user.getName())
+                .email(user.getEmail() == null ? userMap.getEmail() : user.getEmail())
+                .build();
 
-        if (!userEmailMap.containsKey(user.getEmail())) {
+        userIdMap.put(userSaved.getId(), userSaved);
+
+
+        if (!userEmailMap.containsKey(userSaved.getEmail())) {
             userEmailMap.remove(userMap.getEmail());
         }
 
-        userEmailMap.put(user.getEmail(), user);
+        userEmailMap.put(userSaved.getEmail(), userSaved);
 
-        return userIdMap.get(user.getId());
+        return userIdMap.get(userSaved.getId());
     }
 
     @Override
