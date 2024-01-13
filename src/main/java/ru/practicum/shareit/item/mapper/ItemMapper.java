@@ -6,6 +6,11 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Component
 public class ItemMapper {
     public Item toItem(ItemCreateDto itemCreateDto) {
@@ -31,5 +36,13 @@ public class ItemMapper {
                 .description(item.getDescription())
                 .available(item.getAvailable())
                 .build();
+    }
+
+    public Map<Long, ItemDto> toItemDto(List<Item> items) {
+        Map<Long, ItemDto> map = items.stream()
+                .map(this::toItemDto)
+                .collect(Collectors.toMap(ItemDto::getId, itemDto -> itemDto));
+
+        return map;
     }
 }

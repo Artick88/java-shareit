@@ -3,6 +3,12 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.dto.BookingItemDto;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.booking.util.BookingStatus;
 import ru.practicum.shareit.exception.exeption.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -13,9 +19,9 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,17 +30,60 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
     private final UserService userService;
+    private final BookingRepository bookingRepository;
+    private final BookingMapper bookingMapper;
 
     @Override
-    public ItemDto get(Long itemId) {
-        return itemMapper.toItemDto(validationFindItemById(itemId));
+    public ItemDto get(Long itemId, Long userId) {
+        ItemDto itemDto = itemMapper.toItemDto(validationFindItemById(itemId));
+
+        List<Booking> bookings = bookingRepository.findAllByItem_idAndStatusAndItem_owner_id(itemId, BookingStatus.APPROVED, userId);
+
+        if (!bookings.isEmpty()) {
+
+            LocalDateTime currentDateTime = LocalDateTime.now();
+
+            bookings.stream()
+                    .filter(b -> b.getEndDate().isBefore(currentDateTime))
+                    .max(Comparator.comparing(Booking::getEndDate))
+                    .ifPresent(lastBooking -> itemDto.setLastBooking(bookingMapper.toBookingItemDto(lastBooking)));
+
+            bookings.stream()
+                    .filter(b -> b.getStartDate().isAfter(currentDateTime))
+                    .min(Comparator.comparing(Booking::getStartDate))
+                    .ifPresent(nextBooking -> itemDto.setNextBooking(bookingMapper.toBookingItemDto(nextBooking)));
+        }
+
+        return itemDto;
     }
 
     @Override
     public List<ItemDto> getAll(Long userId) {
-        return itemRepository.findAllByOwnerId(userId).stream()
-                .map(itemMapper::toItemDto)
-                .collect(Collectors.toList());
+
+        Map<Long, ItemDto> itemMap = new HashMap<>(itemMapper.toItemDto(itemRepository.findAllByOwnerId(userId)));
+
+        List<Long> itemIds = itemMap.values().stream().map(ItemDto::getId).collect(Collectors.toList());
+
+        List<Booking> bookings = bookingRepository.findAllByItem_idInAndStatusAndItem_owner_id(itemIds, BookingStatus.APPROVED, userId);
+
+        if (!bookings.isEmpty()) {
+
+            LocalDateTime currentDateTime = LocalDateTime.now();
+
+            bookings.stream()
+                    .filter(b -> b.getEndDate().isBefore(currentDateTime))
+                    .max(Comparator.comparing(Booking::getEndDate))
+                    .ifPresent(lastBooking -> itemMap.get(lastBooking.getItem().getId())
+                            .setLastBooking(bookingMapper.toBookingItemDto(lastBooking)));
+
+            bookings.stream()
+                    .filter(b -> b.getStartDate().isAfter(currentDateTime))
+                    .min(Comparator.comparing(Booking::getStartDate))
+                    .ifPresent(nextBooking -> itemMap.get(nextBooking.getItem().getId())
+                            .setNextBooking(bookingMapper.toBookingItemDto(nextBooking)));
+        }
+
+        return new ArrayList<>(itemMap.values());
     }
 
     @Override
@@ -80,11 +129,13 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
     }
 
-    private Item validationFindItemById(Long itemId) {
+    @Override
+    public Item validationFindItemById(Long itemId) {
         return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(String.format("Не найден объект с ид %d", itemId)));
     }
 
-    private Item validationOwnerUserById(Long userId, Long itemId) {
+    @Override
+    public Item validationOwnerUserById(Long userId, Long itemId) {
         Item item = validationFindItemById(itemId);
         if (!Objects.equals(item.getOwner().getId(), userId)) {
             throw new NotFoundException("Пользователь не является владельцем");
