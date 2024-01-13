@@ -11,7 +11,7 @@ import ru.practicum.shareit.user.dto.UserUpdateDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
-import ru.practicum.shareit.user.storage.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,14 +33,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto get(Long id) {
-        return userMapper.toUserDto(userRepository.findById(id).orElse(User.builder().build()));
+        return userMapper.toUserDto(validationFindUserById(id));
     }
 
     @Override
     @Transactional
     public UserDto create(UserCreateDto data) {
         User user = userMapper.toUser(data);
-        validationFindDuplicateEmail(user);
+        //validationFindDuplicateEmail(user);
         return userMapper.toUserDto(userRepository.save(user));
     }
 
@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
         }
 
         if (user.getEmail() != null) {
-            validationFindDuplicateEmail(user);
+            //validationFindDuplicateEmail(user);
             userSaved.setEmail(user.getEmail());
         }
 
@@ -69,6 +69,7 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
+    @Deprecated
     private void validationFindDuplicateEmail(User user) {
         User userValidation = userRepository.findByEmailIgnoreCase(user.getEmail());
         if (userValidation != null && !Objects.equals(userValidation.getId(), user.getId())) {
