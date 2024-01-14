@@ -17,7 +17,6 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.persistence.OrderBy;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -77,7 +76,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @OrderBy("start DESC")
     public List<BookingDto> getAll(Long userId, BookingState state, boolean isOwner) {
         userService.validationFindUserById(userId);
         List<Booking> bookingList;

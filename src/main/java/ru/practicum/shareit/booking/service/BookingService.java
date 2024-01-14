@@ -15,5 +15,4 @@ public interface BookingService {
     BookingDto getById(Long userId, Long bookingId);
 
     List<BookingDto> getAll(Long userId, BookingState state, boolean isOwner);
-
 }

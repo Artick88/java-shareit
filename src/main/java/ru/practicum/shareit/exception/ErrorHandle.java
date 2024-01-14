@@ -61,7 +61,7 @@ public class ErrorHandle {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleNoSuchEnumException(final NoSuchEnumException e) {
+    public ErrorResponse handleNoSuchEnumException(NoSuchEnumException e) {
         log.info(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
