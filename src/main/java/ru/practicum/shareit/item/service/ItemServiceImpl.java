@@ -8,11 +8,13 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.util.BookingStatus;
 import ru.practicum.shareit.exception.exeption.NotFoundException;
-import ru.practicum.shareit.item.dto.ItemCreateDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemUpdateDto;
+import ru.practicum.shareit.exception.exeption.NotValidRequestException;
+import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
@@ -29,10 +31,14 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
+    private final CommentMapper commentMapper;
+    private final CommentRepository commentRepository;
 
     @Override
     public ItemDto get(Long itemId, Long userId) {
         ItemDto itemDto = itemMapper.toItemDto(validationFindItemById(itemId));
+
+        itemDto.setComments(commentMapper.toCommentDto(commentRepository.findAllByItem_id(itemId)));
 
         List<Booking> bookings = bookingRepository.findAllByItem_idAndStatusAndItem_owner_id(itemId, BookingStatus.APPROVED, userId);
 
@@ -41,8 +47,8 @@ public class ItemServiceImpl implements ItemService {
             LocalDateTime currentDateTime = LocalDateTime.now();
 
             bookings.stream()
-                    .filter(b -> b.getEndDate().isBefore(currentDateTime))
-                    .max(Comparator.comparing(Booking::getEndDate))
+                    .filter(b -> b.getStartDate().isBefore(currentDateTime))
+                    .max(Comparator.comparing(Booking::getStartDate))
                     .ifPresent(lastBooking -> itemDto.setLastBooking(bookingMapper.toBookingItemDto(lastBooking)));
 
             bookings.stream()
@@ -138,5 +144,25 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException("Пользователь не является владельцем");
         }
         return item;
+    }
+
+    @Override
+    @Transactional
+    public CommentDto createComment(Long userId, Long itemId, CommentCreateDto commentCreateDto) {
+        User user = userService.validationFindUserById(userId);
+        Item item = validationFindItemById(itemId);
+
+        List<Booking> bookings = bookingRepository.findAllByEndDateBeforeAndBooker_idAndItem_idAndStatus(LocalDateTime.now(),
+                userId, itemId, BookingStatus.APPROVED);
+
+        if (bookings.isEmpty()) {
+            throw new NotValidRequestException("Объект не доступен");
+        }
+
+        Comment comment = commentRepository.save(commentMapper.toComment(userId, itemId, commentCreateDto));
+        comment.setItem(item);
+        comment.setAuthor(user);
+
+        return commentMapper.toCommentDto(comment);
     }
 }
