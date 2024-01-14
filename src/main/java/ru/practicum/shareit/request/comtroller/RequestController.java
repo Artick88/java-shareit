@@ -2,8 +2,8 @@ package ru.practicum.shareit.request.comtroller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.pagination.PaginationCustom;
 import ru.practicum.shareit.request.dto.RequestCreateDto;
 import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.service.RequestService;
@@ -34,10 +34,10 @@ public class RequestController {
 
     @GetMapping("/all")
     public List<RequestDto> getAll(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                   @RequestParam(value = "from", defaultValue = "0") int page,
+                                   @RequestParam(value = "from", defaultValue = "0") int fromIndex,
                                    @RequestParam(value = "size", defaultValue = "10") int size) {
         log.info("User {} get all item request", userId);
-        return requestService.getAll(userId, PageRequest.of(page, size));
+        return requestService.getAll(userId, PaginationCustom.getPageableFromIndex(fromIndex, size));
     }
 
     @GetMapping("/{requestId}")
