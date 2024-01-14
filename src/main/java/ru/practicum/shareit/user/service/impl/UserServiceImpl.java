@@ -3,18 +3,16 @@ package ru.practicum.shareit.user.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.exception.exeption.DuplicationException;
 import ru.practicum.shareit.exception.exeption.NotFoundException;
 import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserUpdateDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +38,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto create(UserCreateDto data) {
         User user = userMapper.toUser(data);
-        //validationFindDuplicateEmail(user);
         return userMapper.toUserDto(userRepository.save(user));
     }
 
@@ -55,7 +52,6 @@ public class UserServiceImpl implements UserService {
         }
 
         if (user.getEmail() != null) {
-            //validationFindDuplicateEmail(user);
             userSaved.setEmail(user.getEmail());
         }
 
@@ -67,14 +63,6 @@ public class UserServiceImpl implements UserService {
     public void delete(Long id) {
         validationFindUserById(id);
         userRepository.deleteById(id);
-    }
-
-    @Deprecated
-    private void validationFindDuplicateEmail(User user) {
-        User userValidation = userRepository.findByEmailIgnoreCase(user.getEmail());
-        if (userValidation != null && !Objects.equals(userValidation.getId(), user.getId())) {
-            throw new DuplicationException(String.format("Клиент с таким email %s уже существует", user.getEmail()));
-        }
     }
 
     @Override

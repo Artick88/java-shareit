@@ -7,7 +7,6 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.exception.exeption.DuplicationException;
 import ru.practicum.shareit.exception.exeption.NoSuchEnumException;
 import ru.practicum.shareit.exception.exeption.NotFoundException;
 import ru.practicum.shareit.exception.exeption.NotValidRequestException;
@@ -16,13 +15,6 @@ import ru.practicum.shareit.exception.model.ErrorResponse;
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandle {
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleDuplicationException(DuplicationException e) {
-        log.info(e.getMessage());
-        return new ErrorResponse(e.getMessage());
-    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
