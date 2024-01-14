@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
@@ -18,9 +19,11 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> getAll(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDto> getAll(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                @RequestParam(value = "from", defaultValue = "0") int page,
+                                @RequestParam(value = "size", defaultValue = "10") int size) {
         log.info("Get all item by user id {}", userId);
-        return itemService.getAll(userId);
+        return itemService.getAll(userId, PageRequest.of(page, size));
     }
 
     @GetMapping("/{id}")
@@ -46,9 +49,11 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestParam("text") String text) {
+    public List<ItemDto> search(@RequestParam("text") String text,
+                                @RequestParam(value = "from", defaultValue = "0") int page,
+                                @RequestParam(value = "size", defaultValue = "10") int size) {
         log.info("Search items - {}", text);
-        return itemService.search(text);
+        return itemService.search(text, PageRequest.of(page, size));
     }
 
     @PostMapping("/{itemId}/comment")

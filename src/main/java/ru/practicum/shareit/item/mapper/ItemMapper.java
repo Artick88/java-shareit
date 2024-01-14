@@ -34,14 +34,17 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
+                .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
                 .build();
     }
 
-    public Map<Long, ItemDto> toItemDto(List<Item> items) {
-        Map<Long, ItemDto> map = items.stream()
+    public Map<Long, ItemDto> toItemDtoMap(List<Item> items) {
+        return items.stream()
                 .map(this::toItemDto)
                 .collect(Collectors.toMap(ItemDto::getId, itemDto -> itemDto));
+    }
 
-        return map;
+    public List<ItemDto> toItemDtoList(List<Item> items) {
+        return items.stream().map(this::toItemDto).collect(Collectors.toList());
     }
 }
