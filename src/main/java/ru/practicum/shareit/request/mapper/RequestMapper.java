@@ -1,29 +1,18 @@
 package ru.practicum.shareit.request.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import ru.practicum.shareit.request.dto.RequestCreateDto;
 import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.model.Request;
-import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
-@Component
-public class RequestMapper {
+@Mapper(componentModel = "spring", imports = {LocalDateTime.class})
+public interface RequestMapper {
+    @Mapping(source = "userId", target = "author.id")
+    @Mapping(target = "created", expression = "java(LocalDateTime.now())")
+    Request toRequest(Long userId, RequestCreateDto requestCreateDto);
 
-    public Request toRequest(Long userId, RequestCreateDto requestCreateDto) {
-        return Request.builder()
-                .description(requestCreateDto.getDescription())
-                .author(User.builder().id(userId).build())
-                .created(LocalDateTime.now())
-                .build();
-    }
-
-    public RequestDto toRequestDto(Request request) {
-        return RequestDto.builder()
-                .id(request.getId())
-                .description(request.getDescription())
-                .created(request.getCreated())
-                .build();
-    }
+    RequestDto toRequestDto(Request request);
 }

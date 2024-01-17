@@ -66,7 +66,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAll(Long userId, Pageable pageable) {
 
-        Map<Long, ItemDto> itemMap = new HashMap<>(itemMapper.toItemDtoMap(itemRepository.findAllByOwnerId(userId, pageable)));
+        Map<Long, ItemDto> itemMap = new HashMap<>(itemRepository.findAllByOwnerId(userId, pageable).stream()
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toMap(ItemDto::getId, itemDto -> itemDto)));
 
         List<Long> itemIds = itemMap.values().stream().map(ItemDto::getId).collect(Collectors.toList());
 

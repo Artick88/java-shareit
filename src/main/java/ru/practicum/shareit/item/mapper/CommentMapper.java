@@ -1,40 +1,24 @@
 package ru.practicum.shareit.item.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import ru.practicum.shareit.item.dto.CommentCreateDto;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.model.Comment;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Component
-public class CommentMapper {
+@Mapper(componentModel = "spring", imports = {LocalDateTime.class})
+public interface CommentMapper {
 
-    public Comment toComment(Long userId, Long itemId, CommentCreateDto commentCreateDto) {
-        return Comment.builder()
-                .author(User.builder().id(userId).build())
-                .item(Item.builder().id(itemId).build())
-                .text(commentCreateDto.getText())
-                .created(LocalDateTime.now())
-                .build();
-    }
+    @Mapping(source = "userId", target = "author.id")
+    @Mapping(source = "itemId", target = "item.id")
+    @Mapping(target = "created", expression = "java(LocalDateTime.now())")
+    Comment toComment(Long userId, Long itemId, CommentCreateDto commentCreateDto);
 
-    public CommentDto toCommentDto(Comment comment) {
-        return CommentDto.builder()
-                .id(comment.getId())
-                .text(comment.getText())
-                .created(comment.getCreated())
-                .authorName(comment.getAuthor().getName())
-                .build();
-    }
+    @Mapping(source = "author.name", target = "authorName")
+    CommentDto toCommentDto(Comment comment);
 
-    public List<CommentDto> toCommentDto(List<Comment> comments) {
-        return comments.stream()
-                .map(this::toCommentDto)
-                .collect(Collectors.toList());
-    }
+    List<CommentDto> toCommentDto(List<Comment> comments);
 }
