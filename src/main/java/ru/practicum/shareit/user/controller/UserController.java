@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 public class UserController {
 
-    private final UserService userService;
+    final UserService userService;
 
     @GetMapping
     public List<UserDto> getAll() {
