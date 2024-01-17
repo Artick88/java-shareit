@@ -3,6 +3,7 @@ package ru.practicum.shareit.request.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.exeption.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -30,6 +31,7 @@ public class RequestServiceImpl implements RequestService {
     private final ItemMapper itemMapper;
 
     @Override
+    @Transactional
     public RequestDto create(Long userId, RequestCreateDto requestCreateDto) {
         userService.validationFindUserById(userId);
         return requestMapper.toRequestDto(requestRepository.save(requestMapper.toRequest(userId, requestCreateDto)));
