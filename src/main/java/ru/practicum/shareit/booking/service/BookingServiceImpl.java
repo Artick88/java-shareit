@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
@@ -76,7 +77,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAll(Long userId, BookingState state, boolean isOwner) {
+    public List<BookingDto> getAll(Long userId, BookingState state, boolean isOwner, Pageable pageable) {
         userService.validationFindUserById(userId);
         List<Booking> bookingList;
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -84,45 +85,53 @@ public class BookingServiceImpl implements BookingService {
         if (isOwner) {
             switch (state) {
                 case WAITING:
-                    bookingList = bookingRepository.findAllByStatusAndItem_Owner_idOrderByStartDateDesc(BookingStatus.WAITING, userId);
+                    bookingList = bookingRepository.findAllByStatusAndItem_Owner_idOrderByStartDateDesc(BookingStatus.WAITING,
+                            userId, pageable);
                     break;
                 case REJECTED:
-                    bookingList = bookingRepository.findAllByStatusAndItem_Owner_idOrderByStartDateDesc(BookingStatus.REJECTED, userId);
+                    bookingList = bookingRepository.findAllByStatusAndItem_Owner_idOrderByStartDateDesc(BookingStatus.REJECTED,
+                            userId, pageable);
                     break;
                 case PAST:
-                    bookingList = bookingRepository.findAllByEndDateBeforeAndItem_Owner_idOrderByStartDateDesc(currentDateTime, userId);
+                    bookingList = bookingRepository.findAllByEndDateBeforeAndItem_Owner_idOrderByStartDateDesc(currentDateTime,
+                            userId, pageable);
                     break;
                 case FUTURE:
-                    bookingList = bookingRepository.findAllByStartDateAfterAndItem_Owner_idOrderByStartDateDesc(currentDateTime, userId);
+                    bookingList = bookingRepository.findAllByStartDateAfterAndItem_Owner_idOrderByStartDateDesc(currentDateTime,
+                            userId, pageable);
                     break;
                 case CURRENT:
                     bookingList = bookingRepository.findAllByStartDateBeforeAndEndDateAfterAndItem_Owner_idOrderByStartDateDesc(
-                            currentDateTime, currentDateTime, userId);
+                            currentDateTime, currentDateTime, userId, pageable);
                     break;
                 default:
-                    bookingList = bookingRepository.findAllByItem_Owner_idOrderByStartDateDesc(userId);
+                    bookingList = bookingRepository.findAllByItem_Owner_idOrderByStartDateDesc(userId, pageable);
                     break;
             }
         } else {
             switch (state) {
                 case WAITING:
-                    bookingList = bookingRepository.findAllByStatusAndBooker_idOrderByStartDateDesc(BookingStatus.WAITING, userId);
+                    bookingList = bookingRepository.findAllByStatusAndBooker_idOrderByStartDateDesc(BookingStatus.WAITING,
+                            userId, pageable);
                     break;
                 case REJECTED:
-                    bookingList = bookingRepository.findAllByStatusAndBooker_idOrderByStartDateDesc(BookingStatus.REJECTED, userId);
+                    bookingList = bookingRepository.findAllByStatusAndBooker_idOrderByStartDateDesc(BookingStatus.REJECTED,
+                            userId, pageable);
                     break;
                 case PAST:
-                    bookingList = bookingRepository.findAllByEndDateBeforeAndBooker_idOrderByStartDateDesc(currentDateTime, userId);
+                    bookingList = bookingRepository.findAllByEndDateBeforeAndBooker_idOrderByStartDateDesc(currentDateTime,
+                            userId, pageable);
                     break;
                 case FUTURE:
-                    bookingList = bookingRepository.findAllByStartDateAfterAndBooker_idOrderByStartDateDesc(currentDateTime, userId);
+                    bookingList = bookingRepository.findAllByStartDateAfterAndBooker_idOrderByStartDateDesc(currentDateTime,
+                            userId, pageable);
                     break;
                 case CURRENT:
                     bookingList = bookingRepository.findAllByStartDateBeforeAndEndDateAfterAndBooker_idOrderByStartDateDesc(
-                            currentDateTime, currentDateTime, userId);
+                            currentDateTime, currentDateTime, userId, pageable);
                     break;
                 default:
-                    bookingList = bookingRepository.findAllByBooker_idOrderByStartDateDesc(userId);
+                    bookingList = bookingRepository.findAllByBooker_idOrderByStartDateDesc(userId, pageable);
                     break;
             }
         }

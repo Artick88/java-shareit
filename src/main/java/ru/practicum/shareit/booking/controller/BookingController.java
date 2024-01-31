@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.util.BookingState;
+import ru.practicum.shareit.pagination.PaginationCustom;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -43,15 +44,21 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getAll(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                   @RequestParam(defaultValue = "all") String state) {
+                                   @RequestParam(defaultValue = "all") String state,
+                                   @RequestParam(value = "from", defaultValue = "0") int fromIndex,
+                                   @RequestParam(value = "size", defaultValue = "10") int size) {
         log.info("Get All booking booker {}, state {}", userId, state);
-        return bookingService.getAll(userId, BookingState.fromStringIgnoreCase(state), false);
+        return bookingService.getAll(userId, BookingState.fromStringIgnoreCase(state), false,
+                PaginationCustom.getPageableFromIndex(fromIndex, size));
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getAllOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                        @RequestParam(defaultValue = "all") String state) {
+                                        @RequestParam(defaultValue = "all") String state,
+                                        @RequestParam(value = "from", defaultValue = "0") int fromIndex,
+                                        @RequestParam(value = "size", defaultValue = "10") int size) {
         log.info("Get All booking owner {}, state {}", userId, state);
-        return bookingService.getAll(userId, BookingState.fromStringIgnoreCase(state), true);
+        return bookingService.getAll(userId, BookingState.fromStringIgnoreCase(state), true,
+                PaginationCustom.getPageableFromIndex(fromIndex, size));
     }
 }

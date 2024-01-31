@@ -1,47 +1,24 @@
 package ru.practicum.shareit.item.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-@Component
-public class ItemMapper {
-    public Item toItem(ItemCreateDto itemCreateDto) {
-        return Item.builder()
-                .name(itemCreateDto.getName())
-                .description(itemCreateDto.getDescription())
-                .available(itemCreateDto.getAvailable())
-                .build();
-    }
+@Mapper(componentModel = "spring")
+public interface ItemMapper {
 
-    public Item toItem(ItemUpdateDto itemCreateDto) {
-        return Item.builder()
-                .name(itemCreateDto.getName())
-                .description(itemCreateDto.getDescription())
-                .available(itemCreateDto.getAvailable())
-                .build();
-    }
+    Item toItem(ItemCreateDto itemCreateDto);
 
-    public ItemDto toItemDto(Item item) {
-        return ItemDto.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .build();
-    }
+    Item toItem(ItemUpdateDto itemUpdateDto);
 
-    public Map<Long, ItemDto> toItemDto(List<Item> items) {
-        Map<Long, ItemDto> map = items.stream()
-                .map(this::toItemDto)
-                .collect(Collectors.toMap(ItemDto::getId, itemDto -> itemDto));
+    @Mapping(source = "request.id", target = "requestId")
+    ItemDto toItemDto(Item item);
 
-        return map;
-    }
+    @Mapping(source = "request.id", target = "requestId")
+    List<ItemDto> toItemDtoList(List<Item> items);
 }

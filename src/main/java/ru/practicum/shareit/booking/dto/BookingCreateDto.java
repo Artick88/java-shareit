@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class BookingCreateDto {
     @Positive
     @NotNull
-    private Long ItemId;
+    private Long itemId;
     @FutureOrPresent
     @NotNull
     private LocalDateTime start;
