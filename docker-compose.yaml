@@ -1,23 +1,22 @@
-version: '3.8'
-
 services:
 
-  db:
-    image: postgres:13.7-alpine
-    container_name: db
-    volumes:
-      - /var/lib/postgresql/data/
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    hostname: gateway-test
     ports:
-      - "6541:5432"
+      - "8080:8080"
+    depends_on:
+      - server
     environment:
-      - POSTGRES_DB=later
-      - POSTGRES_USER=rootLater
-      - POSTGRES_PASSWORD=rootLater
+      - SERVER_PORT=8080
+      - SERVER_URL=http://server:9090
       - TZ=Asia/Yekaterinburg
 
   server:
     build: ./server
     container_name: server
+    hostname: server-test
     ports:
       - "9090:9090"
     depends_on:
@@ -31,14 +30,15 @@ services:
       - SERVER_PORT=9090
       - TZ=Asia/Yekaterinburg
 
-  gateway:
-    build: ./gateway
-    container_name: gateway
+  db:
+    image: postgres:13.7-alpine
+    container_name: db
+    volumes:
+      - /var/lib/postgresql/data/
     ports:
-      - "8080:8080"
-    depends_on:
-      - server
+      - "6541:5432"
     environment:
-      - SERVER_PORT=8080
-      - SERVER_URL=http://server:9090
+      - POSTGRES_DB=later
+      - POSTGRES_USER=rootLater
+      - POSTGRES_PASSWORD=rootLater
       - TZ=Asia/Yekaterinburg
