@@ -3,7 +3,6 @@ services:
   gateway:
     build: ./gateway
     container_name: gateway
-    hostname: gateway
     ports:
       - "8080:8080"
     depends_on:
@@ -16,7 +15,6 @@ services:
   server:
     build: ./server
     container_name: server
-    hostname: server-test
     ports:
       - "9090:9090"
     depends_on:
