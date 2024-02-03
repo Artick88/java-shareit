@@ -9,6 +9,8 @@ import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.util.BookingState;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 @Slf4j
 @RestController
@@ -43,8 +45,8 @@ public class BookingController {
     @GetMapping
     public ResponseEntity<Object> getAll(@RequestHeader("X-Sharer-User-Id") Long userId,
                                          @RequestParam(defaultValue = "all") String state,
-                                         @RequestParam(value = "from", defaultValue = "0") int fromIndex,
-                                         @RequestParam(value = "size", defaultValue = "10") int size) {
+                                         @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero int fromIndex,
+                                         @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
         log.info("Get All booking booker {}, state {}", userId, state);
         return client.getAll(userId, BookingState.fromStringIgnoreCase(state), false, fromIndex, size);
     }
@@ -52,8 +54,8 @@ public class BookingController {
     @GetMapping("/owner")
     public ResponseEntity<Object> getAllOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
                                               @RequestParam(defaultValue = "all") String state,
-                                              @RequestParam(value = "from", defaultValue = "0") int fromIndex,
-                                              @RequestParam(value = "size", defaultValue = "10") int size) {
+                                              @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero int fromIndex,
+                                              @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
         log.info("Get All booking owner {}, state {}", userId, state);
         return client.getAll(userId, BookingState.fromStringIgnoreCase(state), true, fromIndex, size);
     }

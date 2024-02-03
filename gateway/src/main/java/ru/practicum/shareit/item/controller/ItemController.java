@@ -10,6 +10,8 @@ import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 @RestController
 @RequestMapping("/items")
@@ -21,8 +23,8 @@ public class ItemController {
 
     @GetMapping
     public ResponseEntity<Object> getAll(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                         @RequestParam(value = "from", defaultValue = "0") int fromIndex,
-                                         @RequestParam(value = "size", defaultValue = "10") int size) {
+                                         @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero int fromIndex,
+                                         @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
         log.info("Get all item by user id {}", userId);
         return client.getAll(userId, fromIndex, size);
     }
@@ -51,8 +53,8 @@ public class ItemController {
 
     @GetMapping("/search")
     public ResponseEntity<Object> search(@RequestParam("text") String text,
-                                         @RequestParam(value = "from", defaultValue = "0") int fromIndex,
-                                         @RequestParam(value = "size", defaultValue = "10") int size) {
+                                         @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero int fromIndex,
+                                         @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
         log.info("Search items - {}", text);
         return client.search(text, fromIndex, size);
     }

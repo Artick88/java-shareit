@@ -8,7 +8,6 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.baseclient.BaseClient;
-import ru.practicum.shareit.exception.exeption.NotValidRequestException;
 import ru.practicum.shareit.request.dto.RequestCreateDto;
 
 import java.util.Map;
@@ -28,11 +27,6 @@ public class RequestClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getAll(long userId, Integer fromIndex, Integer size) {
-
-        if (fromIndex < 0 || size < 1) {
-            throw new NotValidRequestException("Bad parameter: from or size");
-        }
-
         Map<String, Object> params = Map.of("from", fromIndex, "size", size);
 
         return exchange("/all?from={from}&size={size}", HttpMethod.GET, null, getHeaders(userId), params);

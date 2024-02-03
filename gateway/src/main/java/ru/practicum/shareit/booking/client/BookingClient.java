@@ -11,7 +11,6 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.baseclient.BaseClient;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.util.BookingState;
-import ru.practicum.shareit.exception.exeption.NotValidRequestException;
 
 import java.util.Map;
 
@@ -45,18 +44,10 @@ public class BookingClient extends BaseClient {
     public ResponseEntity<Object> getAll(long userId, BookingState state, boolean isOwner,
                                          int fromIndex, int size) {
 
-        if (fromIndex < 0 || size < 1) {
-            throw new NotValidRequestException("Bad parameter: from or size");
-        }
-
         Map<String, Object> params = Map.of("state", state, "from", fromIndex, "size", size);
 
         String path = "?state={state}&from={from}&size={size}";
 
-        if (isOwner) {
-            path = "/owner" + path;
-        }
-
-        return exchange(path, HttpMethod.GET, null, getHeaders(userId), params);
+        return exchange(isOwner ? "/owner" + path : path, HttpMethod.GET, null, getHeaders(userId), params);
     }
 }

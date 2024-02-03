@@ -9,6 +9,7 @@ import ru.practicum.shareit.request.dto.RequestCreateDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 @Slf4j
 @RestController
@@ -33,8 +34,8 @@ public class RequestController {
 
     @GetMapping("/all")
     public ResponseEntity<Object> getAll(@RequestHeader("X-Sharer-User-Id") @Positive long userId,
-                                         @RequestParam(value = "from", defaultValue = "0") int fromIndex,
-                                         @RequestParam(value = "size", defaultValue = "10") int size) {
+                                         @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero int fromIndex,
+                                         @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
         log.info("User {} get all item request", userId);
         return client.getAll(userId, fromIndex, size);
     }
