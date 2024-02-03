@@ -10,7 +10,7 @@ services:
     environment:
       - SERVER_PORT=8080
       - SERVER_URL=http://server:9090
-      - TZ=Asia/Yekaterinburg
+#      - TZ=Asia/Yekaterinburg
 
   server:
     build: ./server
@@ -26,7 +26,7 @@ services:
       - POSTGRES_USER=rootLater
       - POSTGRES_PASSWORD=rootLater
       - SERVER_PORT=9090
-      - TZ=Asia/Yekaterinburg
+#      - TZ=Asia/Yekaterinburg
 
   db:
     image: postgres:13.7-alpine
@@ -40,4 +40,4 @@ services:
       - POSTGRES_DB=later
       - POSTGRES_USER=rootLater
       - POSTGRES_PASSWORD=rootLater
-      - TZ=Asia/Yekaterinburg
+#      - TZ=Asia/Yekaterinburg
