@@ -1,9 +1,9 @@
 package ru.practicum.shareit.item.client;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -13,6 +13,7 @@ import ru.practicum.shareit.item.dto.CommentCreateDto;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 
+import java.util.Collections;
 import java.util.Map;
 
 
@@ -20,7 +21,6 @@ import java.util.Map;
 public class ItemClient extends BaseClient {
     private static final String BASE_PATH = "/items";
 
-    @Autowired
     public ItemClient(@Value("${shareit-server.url}") String url, RestTemplateBuilder builder) {
         super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(url + BASE_PATH))
                 .requestFactory(HttpComponentsClientHttpRequestFactory::new)
@@ -46,6 +46,11 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> search(String text, int fromIndex, int size) {
+
+        if (text.isBlank()) {
+            return ResponseEntity.status(HttpStatus.OK).body(Collections.emptyList());
+        }
+
         Map<String, Object> params = Map.of("text", text, "from", fromIndex, "size", size);
         return exchange("/search?text={text}&from={from}&size={size}", HttpMethod.GET, null, getHeaders(), params);
     }

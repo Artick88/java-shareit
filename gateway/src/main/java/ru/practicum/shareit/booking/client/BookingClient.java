@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.client;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
@@ -11,6 +10,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.baseclient.BaseClient;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.util.BookingState;
+import ru.practicum.shareit.exception.exeption.NotValidRequestException;
 
 import java.util.Map;
 
@@ -18,7 +18,6 @@ import java.util.Map;
 public class BookingClient extends BaseClient {
     private static final String BASE_PATH = "/bookings";
 
-    @Autowired
     public BookingClient(@Value("${shareit-server.url}") String url, RestTemplateBuilder builder) {
         super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(url + BASE_PATH))
                 .requestFactory(HttpComponentsClientHttpRequestFactory::new)
@@ -26,6 +25,9 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> create(long userId, BookingCreateDto bookingCreateDto) {
+        if (!bookingCreateDto.getStart().isBefore(bookingCreateDto.getEnd())) {
+            throw new NotValidRequestException("Дата окончания должна быть больше даты начала");
+        }
         return exchange("", HttpMethod.POST, bookingCreateDto, getHeaders(userId), null);
     }
 

@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user.client;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
@@ -17,7 +16,6 @@ public class UserClient extends BaseClient {
 
     private static final String BASE_PATH = "/users";
 
-    @Autowired
     public UserClient(@Value("${shareit-server.url}") String url, RestTemplateBuilder builder) {
         super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(url + BASE_PATH))
                 .requestFactory(HttpComponentsClientHttpRequestFactory::new)
